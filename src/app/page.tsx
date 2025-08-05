@@ -2,10 +2,51 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
+import { createClient } from '@/lib/supabase/client';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation' //ใช้ตอนอยู่ use client
 
 export default function Home() {
+  const [users, setUser] = useState<any>({})
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      // const { data: {user} ,error } = await supabase.auth.getUser()
+      // if(error) {
+      //   router.push("/login")
+      // } else {
+      //   setUser(user)
+      // }
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select(`username`)
+        .eq('user_id',userId)
+
+      if(error) {
+        console.log('Error',error)
+        router.push("/error")
+      } else {
+        console.log(userData)
+        setUser(userData[0])
+      }
+
+      setLoading(false)
+    }
+
+    fetchData()
+  }, [])
+
+  if (loading) 
+    return <div>Loading...</div>
+
   return (
-    <div className="flex flex-col max-w-screen-2xl mx-auto w-full bg-[#354538] p-6 gap-y-5">
+    <Suspense fallback={<div>กำลังโหลดข้อมูล...</div>}>
+      <div className="flex flex-col max-w-screen-2xl mx-auto w-full bg-[#354538] p-6 gap-y-5">
       <div className="overflow-x-auto w-full">
         <Swiper
           spaceBetween={8}
@@ -21,6 +62,9 @@ export default function Home() {
             </SwiperSlide>
           ))}
         </Swiper>
+      </div>
+      <div className="text-4xl font-bold text-white whitespace-nowrap">
+        {users.username}
       </div>
       <div className="flex flex-col bg-[#58695B] p-5 rounded-2xl gap-y-5 tex">
         <div className="flex flex-col bg-[#736767] p-5 rounded-2xl gap-3">
@@ -115,6 +159,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </Suspense>
   );
 }

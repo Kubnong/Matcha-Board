@@ -21,9 +21,9 @@ export default function Navbar() {
                     />
                 </div>
                 <div> 
-                    <button className="flex p-2 gap-1 text-white font-semibold hover:bg-[#677c6b] rounded-full">
+                    <Link href={"login"} className="flex p-2 gap-1 text-white font-semibold hover:bg-[#677c6b] rounded-full">
                         <User className="text-white"/>
-                    </button>
+                    </Link>
                 </div>
                 <div> 
                     <Link href={"add_board"} className="flex p-2 gap-1 text-white font-semibold hover:bg-[#677c6b] rounded-full">
