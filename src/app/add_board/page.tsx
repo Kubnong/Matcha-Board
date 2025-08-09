@@ -14,6 +14,7 @@ export default function Page() {
   useEffect(() => {
     const fetchData = async () => {
       const supabase = createClient();
+
       const { data: tagData, error } = await supabase
         .from("typeboard")
         .select("tag_name");
@@ -26,6 +27,7 @@ export default function Page() {
         setTag(tagData.map((item) => item.tag_name));
         //setTag(tagData)
       }
+
     };
 
     fetchData();

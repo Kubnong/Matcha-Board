@@ -3,11 +3,21 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { createClient } from '@/lib/supabase/client';
-import { Suspense, useEffect, useState } from 'react';
+import { Key, Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation' //ใช้ตอนอยู่ use client
+import { UUID } from 'crypto';
+import { Timestamp } from 'next/dist/server/lib/cache-handlers/types';
 
 export default function Home() {
+  type BoardContent = {
+    board_id?: UUID
+    content?: string;
+    time_stamp?: Timestamp;
+    tag_id?: UUID;
+    user_id?: UUID;
+  };
   const [users, setUser] = useState<any>({})
+  const [content, setContent] = useState<BoardContent[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -33,6 +43,18 @@ export default function Home() {
       } else {
         console.log(userData)
         setUser(userData[0])
+      }
+
+      const { data: content, error: getContentError } = await supabase
+        .from('board')
+        .select('*')
+
+      if(getContentError) {
+        console.log('getContentError',getContentError)
+      } else {
+        console.log('setContent success')
+        console.log(content)
+        setContent(content)
       }
 
       setLoading(false)
@@ -67,19 +89,25 @@ export default function Home() {
         {users.username}
       </div>
       <div className="flex flex-col bg-[#58695B] p-5 rounded-2xl gap-y-5 tex">
-        <div className="flex flex-col bg-[#736767] p-5 rounded-2xl gap-3">
-          <div className="flex gap-2">
-            <div className="p-2 px-4 rounded-lg bg-[#8F8585] w-fit">
-              ทั่วไป
+        {content.map((item: BoardContent, index: number) => (
+          <div key={item.board_id} className="flex flex-col bg-[#736767] p-5 rounded-2xl gap-3">
+            <div className="flex gap-2">
+              <div className="p-2 px-4 rounded-lg bg-[#8F8585] w-fit">
+                {item.tag_id}
+              </div>
+              <div className="p-2 px-4 rounded-lg bg-[#8F8585] w-fit">
+                {item.time_stamp}
+              </div>
             </div>
-            <div className="p-2 px-4 rounded-lg bg-[#8F8585] w-fit">
-              ความรัก
+            <div>
+              {item.content}
+            </div>
+            <div>
+              {item.user_id}
             </div>
           </div>
-          <div>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptate laudantium nihil, id possimus maiores aliquam? Aut voluptatibus quas, doloribus ut praesentium similique neque voluptates facere officiis ea ullam pariatur mollitia!
-          </div>
-        </div>
+        ))}
+{/* 
         <div className="flex flex-col bg-[#736767] p-5 rounded-2xl gap-3">
           <div className="flex gap-2">
             <div className="p-2 px-4 rounded-lg bg-[#8F8585] w-fit">
@@ -157,7 +185,7 @@ export default function Home() {
             Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptate laudantium nihil, id possimus maiores aliquam? Aut voluptatibus quas, doloribus ut praesentium similique neque voluptates facere officiis ea ullam pariatur mollitia!
             Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptate laudantium nihil, id possimus maiores aliquam? Aut voluptatibus quas, doloribus ut praesentium similique neque voluptates facere officiis ea ullam pariatur mollitia!
           </div>
-        </div>
+        </div> */}
       </div>
       </div>
     </Suspense>
