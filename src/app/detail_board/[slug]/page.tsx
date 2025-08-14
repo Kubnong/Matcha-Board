@@ -2,6 +2,8 @@
 
 import { use, useEffect, useState } from "react"
 import { createClient } from '@/lib/supabase/client';
+import { postComment } from "./action";
+import { useRouter } from 'next/navigation'
 
 interface PageProps {
     params: Promise<{slug?: string}>
@@ -19,6 +21,9 @@ type BoardContent = {
 export default function Page({params}: PageProps) {
     const {slug} = use(params)
     const [content, setContent] = useState<BoardContent>({})
+    const [comment, setComment] = useState("");
+    const [boardId, setboardId] = useState("");
+    const router = useRouter()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,11 +39,14 @@ export default function Page({params}: PageProps) {
 
             if(getContentDataError) {
                 console.log('getContentError',getContentDataError)
+                router.push("/error")
             } else {
                 setContent(contentData)
             }
             console.log(contentData)
         }
+
+        // comment_id , comment_content , user_id , board_id
 
         fetchData()
     },[])
@@ -56,17 +64,34 @@ export default function Page({params}: PageProps) {
                     User : {content.users?.username}
                 </div>
             </div>
-            <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-3">
-                <input
-                    type="text"
-                    placeholder="พิมพ์คอมเมนต์..."
-                    className="flex-1 border rounded px-3 py-2 focus:outline-none"
-                />
+            <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl">
+                <form className="flex flex-col gap-y-3">
+                    <textarea
+                        id="comment"
+                        name="comment"
+                        value={comment}
+                        rows={3}
+                        cols={40}
+                        maxLength={350}
+                        placeholder="พิมพ์คอมเมนต์..."
+                        onChange={(e) => setComment(e.target.value)}
+                        className="flex-1 border rounded px-3 py-2 focus:outline-none"
+                    />
+                    <input
+                        type="hidden"
+                        name="boardID"
+                        value={content.board_id ?? ""}
+                        // ใช้ controlled input ตลอด lifecycle ของ component
+                        // เพื่อหลีกเลี่ยง warning “uncontrolled → controlled” ของ React
+                        // และให้ FormData.get("board_id") ได้ค่าที่เชื่อถือได้เสมอ
+                    />
+                    <button className="flex justify-start" formAction={postComment}>Comment</button>
+                </form>
             </div>
             <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-3">
-                
+                <div>comment</div>
+                <div>username</div>
             </div>
-
             <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-3">
                 
             </div>
