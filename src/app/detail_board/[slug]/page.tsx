@@ -14,15 +14,23 @@ type BoardContent = {
     content?: string;
     time_stamp?: string | null;
     tag_id?: string;
-    users?: {username?: string;};
+    users?: {username?: string};
     typeboard?: {tag_name?: string;};
 };
+
+type CommentContent = {
+    comment_id?: string;
+    comment_content?: string;
+    comment_time?: string;
+    users?: {username?: string};
+    board_id?: string;
+}
 
 export default function Page({params}: PageProps) {
     const {slug} = use(params)
     const [content, setContent] = useState<BoardContent>({})
     const [comment, setComment] = useState("");
-    const [boardId, setboardId] = useState("");
+    const [commentData, setCommentData] = useState<CommentContent[]>([])
     const router = useRouter()
 
     useEffect(() => {
@@ -38,12 +46,23 @@ export default function Page({params}: PageProps) {
                 .single();
 
             if(getContentDataError) {
-                console.log('getContentError',getContentDataError)
                 router.push("/error")
             } else {
                 setContent(contentData)
             }
-            console.log(contentData)
+
+            const { data: dataComment, error: getCommentDateError } = await supabase
+                .from('comment')
+                .select('*,users:user_id(username)')
+                .eq('board_id',id)
+
+            if(getCommentDateError) {
+                console.log(getCommentDateError)
+                router.push("/error")
+            } else {
+                setCommentData(dataComment)
+            }
+                
         }
 
         // comment_id , comment_content , user_id , board_id
@@ -76,6 +95,7 @@ export default function Page({params}: PageProps) {
                         placeholder="พิมพ์คอมเมนต์..."
                         onChange={(e) => setComment(e.target.value)}
                         className="flex-1 border rounded px-3 py-2 focus:outline-none"
+                        required
                     />
                     <input
                         type="hidden"
@@ -89,8 +109,12 @@ export default function Page({params}: PageProps) {
                 </form>
             </div>
             <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-3">
-                <div>comment</div>
-                <div>username</div>
+                {commentData.map((item: CommentContent) => (
+                    <div key={item.comment_id}>
+                        <div>{item.users?.username}</div>
+                        <div>{item.comment_content}</div>
+                    </div>
+                ))}
             </div>
             <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-3">
                 

@@ -42,6 +42,15 @@ export default function Home() {
       }
 
       //ดึงข้อมูล post ทั้งหมด
+      // supabase.from('board')
+      // ดึงข้อมูลจากตาราง board.
+      // .select('*')
+      // เลือกข้อมูลทุก column ของ board (* = select all).
+      // users:user_id(username)
+      // เป็นการ ทำ Join กับตาราง users ผ่าน foreign key user_id ของ board.
+      // แล้วเลือก column username จากตาราง users.
+      // alias ที่ได้ในผลลัพธ์คือ users.
+      
       const { data: contentData, error: getContentDataError } = await supabase
         .from('board')
         .select(`*,users:user_id(username),typeboard:tag_id(tag_name)`)
