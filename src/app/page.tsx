@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client';
 import { Key, Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation' //ใช้ตอนอยู่ use client
 import Link from 'next/link'
+import { Trash2 } from 'lucide-react';
+import { deleteBoard } from './action';
 
 export default function Home() {
   type BoardContent = {
@@ -13,7 +15,7 @@ export default function Home() {
     content?: string;
     time_stamp?: string | null;
     tag_id?: string;
-    users?: {username?: string;};
+    users?: {user_id?:string, username?: string};
     typeboard?: {tag_name?: string;};
   };
   const [users, setUser] = useState<any>({})
@@ -31,7 +33,7 @@ export default function Home() {
       //ดึงชื่อ username ของเรา
       const { data: userData, error } = await supabase
         .from('users')
-        .select(`username`)
+        .select(`*`)
         .eq('user_id',userId)
 
       if(error) {
@@ -53,7 +55,7 @@ export default function Home() {
       
       const { data: contentData, error: getContentDataError } = await supabase
         .from('board')
-        .select(`*,users:user_id(username),typeboard:tag_id(tag_name)`)
+        .select(`*,users:user_id(user_id,username),typeboard:tag_id(tag_name)`)
         .order('time_stamp', { ascending: false })
 
       if(getContentDataError) {
@@ -63,12 +65,14 @@ export default function Home() {
         setContent(contentData)
       }
       console.log(contentData)
+      console.log(userId)
       
       setLoading(false)
     }
 
     fetchData()
   }, [])
+  
 
   if (loading) 
     return <div>Loading...</div>
@@ -97,28 +101,43 @@ export default function Home() {
         </div>
         <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-5">
           {content.map((item: BoardContent, index: number) => (
-            <Link href={`detail_board/${item.board_id}-${item.content?.slice(0,40)}`} key={item.board_id} className="flex flex-col bg-[#f5f0e1c5] p-5 rounded-2xl gap-3">
-              <div className="flex gap-2 justify-between">
-                <div className="p-2 rounded-lg bg-[#8F8585] w-fit">
-                  {item.typeboard?.tag_name}
+            <div className="flex flex-col bg-[#f5f0e1c5] p-5 rounded-2xl gap-3" key={item.board_id}>
+              <Link href={`detail_board/${item.board_id}-${item.content?.slice(0,40)}`}>
+                <div className="flex gap-2 justify-between">
+                  <div className="p-2 rounded-lg bg-[#8F8585] w-fit">
+                    {item.typeboard?.tag_name}
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#8F8585] w-fit">
+                    {/* {item.time_stamp} */}
+                    {item.time_stamp ? new Date(item.time_stamp).toLocaleString('th-TH', {
+                      dateStyle: 'long',
+                      timeStyle: 'short',
+                    }) : 'No date availble'}
+                  </div>
                 </div>
-                <div className="p-2 rounded-lg bg-[#8F8585] w-fit">
-                  {/* {item.time_stamp} */}
-                  {item.time_stamp ? new Date(item.time_stamp).toLocaleString('th-TH', {
-                    dateStyle: 'long',
-                    timeStyle: 'short',
-                  }) : 'No date availble'}
+                <div className='text-xl font-semibold text-black'>
+                  {item.content}
                 </div>
+              </Link>
+              <div className='flex justify-between'>
+                <div>
+                  {
+                    users.username === item.users?.username
+                      ? <div className='text-blue-500'>{item.users?.username}</div>
+                      : <div>{item.users?.username}</div>
+                  }
+                </div>
+                {
+                  users.user_id === item.users?.user_id &&
+                  <form action={deleteBoard}>
+                    <input type="hidden" name="boardId" value={item.board_id} />
+                    <button className='text-red-500 hover:text-rose-800 relative z-50' type="submit">
+                      <Trash2/>
+                    </button>
+                  </form>
+                }
               </div>
-              <div className='text-xl font-semibold text-black'>
-                {item.content}
-              </div>
-              {
-                users.username === item.users?.username
-                  ? <div className='text-blue-500'>{item.users?.username}</div>
-                  : <div>{item.users?.username}</div>
-              }
-            </Link>
+            </div>  
           ))}
         </div>
       </div>
