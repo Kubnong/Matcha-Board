@@ -116,12 +116,6 @@ export default function Page({params}: PageProps) {
                     </div>
                 ))}
             </div>
-            <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-3">
-                
-            </div>
-            <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-3">
-                
-            </div>
         </div>
     ) 
 }

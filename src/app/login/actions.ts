@@ -36,7 +36,7 @@ export async function signup(formData: FormData) {
 
   const { data: authData , error: authError } = await supabase.auth.signUp({
     email : email,
-    password : password
+    password : password,
   })
 
   if (authError) {
@@ -52,7 +52,7 @@ export async function signup(formData: FormData) {
 
   const {error : errorInsert} = await supabase
     .from('users')
-    .insert({ user_id:userId, username:username, create_at: Date.now.toString})
+    .insert({ user_id:userId, username:username, role:'user'})
 
   if(errorInsert) {
     console.log('Insert error :',errorInsert)

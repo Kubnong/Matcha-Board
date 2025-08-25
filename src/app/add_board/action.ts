@@ -31,6 +31,7 @@ export async function post(formData: FormData) {
                 redirect('/error')
             } else {
                 console.log('Post Success')
+                redirect('/')
             }
     }
 }

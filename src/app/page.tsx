@@ -27,23 +27,50 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       const supabase = createClient()
+      // 1) ดูว่ามี session ใน client ไหม
       const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id;
-      
-      //ดึงชื่อ username ของเรา
-      const { data: userData, error } = await supabase
+      if(!session) {
+        router.push('/login')
+      }
+
+      // 2) ดึง user จาก server ด้วย token ปัจจุบัน
+      const { data: {user}, error: sessionError } = await supabase.auth.getUser();
+      const userId = user?.id;
+      if(sessionError) {
+        router.push('/login')
+      }
+
+      // ดึงชื่อ username ของเรา
+      // error ไม่ต้องมี type เพรามันชื่อ error อยู่แล้วเลยทำได้
+      const { data: userData, error } = await supabase 
         .from('users')
         .select(`*`)
         .eq('user_id',userId)
 
-      if(error) {
+      if(error) { //(query ผิดพลาด, DB ล่ม, column ไม่ตรง ฯลฯ)
         console.log('Error',error)
         router.push("/login")
-      } else {
+      }
+      else if(userData.length > 0) {
         setUser(userData[0])
+      } 
+      else {
+        const { data: adminData, error: adminError } = await supabase
+          .from('admins')
+          .select('*')
+          .eq('admin_id',userId)
+        
+        if(!adminError) {
+          console.log(adminData[0])
+          setUser(adminData[0])
+        }
+        else {
+          console.log('Error',error)
+          router.push("/login")
+        }
       }
 
-      //ดึงข้อมูล post ทั้งหมด
+      // ดึงข้อมูล post ทั้งหมด
       // supabase.from('board')
       // ดึงข้อมูลจากตาราง board.
       // .select('*')
@@ -61,11 +88,8 @@ export default function Home() {
       if(getContentDataError) {
         console.log('getContentError',getContentDataError)
       } else {
-        console.log(contentData)
         setContent(contentData)
       }
-      console.log(contentData)
-      console.log(userId)
       
       setLoading(false)
     }
@@ -127,14 +151,17 @@ export default function Home() {
                       : <div>{item.users?.username}</div>
                   }
                 </div>
+                {/* ถ้า users.user_id === item.users?.user_id เป็น true ⇒ คืน <form>...</form> ⇒ เรนเดอร์ฟอร์มปุ่มลบ
+                ถ้าเป็น false ⇒ คืน false ⇒ React ไม่เรนเดอร์อะไรเลย */}
                 {
-                  users.user_id === item.users?.user_id &&
+                  (users.user_id === item.users?.user_id) || (users.role === 'admin') ?
                   <form action={deleteBoard}>
                     <input type="hidden" name="boardId" value={item.board_id} />
                     <button className='text-red-500 hover:text-rose-800 relative z-50' type="submit">
                       <Trash2/>
                     </button>
                   </form>
+                  : ''
                 }
               </div>
             </div>  
