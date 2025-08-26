@@ -8,7 +8,6 @@ export async function middleware(request: NextRequest) {
     if(error || !user) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
-    console.log(user)
 
     const { data: adminData, error: adminError } = await supabase
         .from('admins')
