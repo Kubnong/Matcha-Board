@@ -34,44 +34,53 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center h-screen">
-      <div className="flex flex-col bg-[#58695B] items-center">
+    <div className="flex justify-center items-center h-screen">
+      <div className="bg-[#58695B] p-4 rounded-2xl">
         {/* content select tag */}
-        <form>
-          <div>Add_board</div>
-          <div className="p-5">
-            <div className="flex flex-col bg-[#a7bbab] gap-4">
-              <div className="">
-                <div>Content</div>
-                <input
+        <form className="flex flex-col items-center gap-y-4">
+          <div className="text-2xl font-extrabold">
+            Add_board
+          </div>
+          <div className="">
+            <div className="flex flex-col bg-[#a7bbab] rounded-2xl">
+              <div className="flex flex-col p-3 gap-2">
+                <div className="text-xl font-bold text-black">
+                  Content
+                </div>
+                <textarea
                   id="content"
                   name="content"
-                  type="text"
                   value={content}
+                  placeholder="Write your content here!!"
                   onChange={(e) => setContent(e.target.value)}
-                  className="border border-amber-800"
+                  className="flex border border-green-700 p-5 w-full text-black"
                   required
                 />
               </div>
-              <div className="bg-red-400 flex gap-4 p-3">
-                {tag.map((item: string, index: Key) => (
-                  <button
-                    key={index}
-                    type="button"
-                    name={tag}
-                    onClick={() => setSelectedTag(item)}
-                    className={`p-3 rounded-md text-black hover:bg-blue-400 ${
-                      selectedTag === item ? "bg-blue-400" : "bg-white"
-                    }`}
-                  >
-                    {item}
-                  </button>
-                ))}
+              <div className="flex flex-col p-3 gap-2">
+                <div className="text-xl font-bold text-black">
+                  Type
+                </div>
+                <div className="flex gap-4">
+                  {tag.map((item: string, index: Key) => (
+                    <button
+                      key={index}
+                      type="button"
+                      name={tag}
+                      onClick={() => setSelectedTag(item)}
+                      className={`p-3 rounded-md text-black hover:bg-linear-to-bl from-green-500 to-green-200 ${
+                        selectedTag === item ? "bg-linear-to-bl from-green-500 to-green-200" : "bg-white"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
           <input type="hidden" name="tag" value={selectedTag ?? ""}/>
-          <div>
+          <div className="w-full bg-green-600 text-center rounded-2xl p-2">
             <button formAction={post}>Post</button>
           </div>
         </form>
