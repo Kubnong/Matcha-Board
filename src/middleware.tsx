@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     
     if(adminError) {
         console.log('query Error',adminError)
-        return NextResponse.redirect(new URL('/login', request.url))
+        return NextResponse.redirect(new URL('/error', request.url))
     }
 
     if (!adminData || adminData.length === 0) {
