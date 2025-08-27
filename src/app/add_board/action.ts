@@ -12,6 +12,7 @@ export async function post(formData: FormData) {
     const tag = formData.get('tag') as String
     // const timeStamp = Date.now().toString() 
     const userId = session?.user?.id;
+    console.log(userId)
 
     const { data, error } = await supabase
         .from('typeboard')
