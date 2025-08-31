@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Key, Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation"; //ใช้ตอนอยู่ use client
 import Link from "next/link";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { deleteBoard } from "./action";
 import Layout from "./components/layout";
 
@@ -57,21 +57,9 @@ export default function Home() {
         //(query ผิดพลาด, DB ล่ม, column ไม่ตรง ฯลฯ)
         console.log("Error", error);
         router.push("/login");
-      } else if (userData.length > 0) {
+      }
+      else {
         setUser(userData[0]);
-      } else {
-        const { data: adminData, error: adminError } = await supabase
-          .from("admins")
-          .select("*")
-          .eq("admin_id", userId);
-
-        if (!adminError) {
-          console.log(adminData[0]);
-          setUser(adminData[0]);
-        } else {
-          console.log("Error", error);
-          router.push("/login");
-        }
       }
 
       // ดึงข้อมูล post ทั้งหมด
@@ -86,15 +74,19 @@ export default function Home() {
 
       const { data: contentData, error: getContentDataError } = await supabase
         .from("board")
-        .select(`*,users:user_id(user_id,username),typeboard:tag_id(tag_name)`)
+        .select(`
+          *,
+          users:user_id(user_id,username),
+          typeboard:tag_id(tag_name)`,
+        )
         .order("time_stamp", { ascending: false });
 
       if (getContentDataError) {
         console.log("getContentError", getContentDataError);
       } else {
+        console.log(contentData)
         setContent(contentData);
       }
-
       setLoading(false);
     };
 
@@ -106,7 +98,7 @@ export default function Home() {
   return (
     <Suspense fallback={<div>กำลังโหลดข้อมูล...</div>}>
       <Layout>
-        <div className="flex flex-col max-w-screen-2xl mx-auto w-full bg-[#35453848] p-6 gap-y-5">
+        <div className="flex flex-col max-w-screen-2xl mx-auto w-full bg-[#35453848] p-6 gap-y-5 h-screen">
           <div className="overflow-x-auto w-full">
             <Swiper
               spaceBetween={8}
@@ -134,6 +126,8 @@ export default function Home() {
           <div className="text-4xl font-bold text-white whitespace-nowrap">
             User : {users.username}
           </div>
+          {content.length > 0 
+          ? 
           <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-5">
             {content.map((item: BoardContent, index: number) => (
               <div
@@ -168,7 +162,7 @@ export default function Home() {
                   <div>
                     {users.username === item.users?.username ? (
                       <div className="text-blue-500">
-                        {item.users?.username}
+                        {item.users?.username || "ไม่ทราบชื่อ"}
                       </div>
                     ) : (
                       <div>{item.users?.username}</div>
@@ -197,7 +191,19 @@ export default function Home() {
                 </div>
               </div>
             ))}
+          </div> 
+          : 
+          <div className="flex flex-col items-center mt-40 gap-y-5">
+            <div className="font-bold text-3xl">
+              Not Found Board
+            </div>
+            <div> 
+              <Link href={"add_board"} className="flex p-3 gap-1 text-white font-semibold bg-green-400 hover:bg-[#677c6b] rounded-2xl">
+                  AddBoard
+              </Link>
+            </div>
           </div>
+          }
         </div>
       </Layout>
     </Suspense>
