@@ -14,13 +14,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #3E5F44;
+    --background: #246640;
     --foreground: #ededed;
   }
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-noto-sans-thai), sans-serif;
 }
