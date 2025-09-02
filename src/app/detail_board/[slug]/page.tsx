@@ -4,6 +4,8 @@ import { use, useEffect, useState } from "react"
 import { createClient } from '@/lib/supabase/client';
 import { postComment } from "./action";
 import { useRouter } from 'next/navigation'
+import { MessageCircle, Send, Tag, User } from "lucide-react";
+
 
 interface PageProps {
     params: Promise<{slug?: string}>
@@ -71,19 +73,25 @@ export default function Page({params}: PageProps) {
     },[])
 
     return (
-        <div className="flex flex-col max-w-screen-2xl mx-auto w-full bg-[#35453848] p-6 gap-y-5">
-            <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-3">
-                <div className="flex w-fit bg-[#5D6A60] text-white px-4 py-2 rounded-xl whitespace-nowrap text-xl">
-                    {content.typeboard?.tag_name}
+        <div className="flex flex-col max-w-screen-2xl mx-auto w-full p-6 gap-y-5">
+            <div className="flex flex-col bg-[#e6e3e381] p-5 rounded-2xl gap-y-3">
+                <div className="flex w-fit bg-[#e6e3e381] text-white px-4 py-2 rounded-xl whitespace-nowrap text-xl items-center gap-x-1">
+                    <Tag size={24}/>
+                    <div className="text-xl font-semibold text-white pb-1">
+                       {content.typeboard?.tag_name} 
+                    </div>                
                 </div>
-                <div className="text-2xl ml-6">
+                <div className="text-3xl ml-6 font-bold">
                     {content.content}
                 </div>
-                <div className="font-semibold text-xl">
-                    User : {content.users?.username}
+                <div className="flex font-bold text-xl text-green-800 gap-x-1">
+                    <User className="bg-[#e6e3e3cb] rounded-2xl p-1" size={30}/>
+                    <div >
+                        {content.users?.username}
+                    </div>
                 </div>
             </div>
-            <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl">
+            <div className="flex flex-col bg-[#e6e3e381] p-5 rounded-2xl">
                 <form className="flex flex-col gap-y-3">
                     <textarea
                         id="comment"
@@ -94,7 +102,7 @@ export default function Page({params}: PageProps) {
                         maxLength={350}
                         placeholder="พิมพ์คอมเมนต์..."
                         onChange={(e) => setComment(e.target.value)}
-                        className="flex-1 border rounded px-3 py-2 focus:outline-none"
+                        className="flex-1 rounded px-3 py-2 focus:outline-none border-black border-2 focus:border-green-700"
                         required
                     />
                     <input
@@ -105,16 +113,28 @@ export default function Page({params}: PageProps) {
                         // เพื่อหลีกเลี่ยง warning “uncontrolled → controlled” ของ React
                         // และให้ FormData.get("board_id") ได้ค่าที่เชื่อถือได้เสมอ
                     />
-                    <button className="flex justify-start" formAction={postComment}>Comment</button>
+                    <button className="flex items-center text-xl w-fit gap-x-1 bg-blue-600 p-3 rounded-2xl hover:bg-blue-800" formAction={postComment}>
+                        <Send size={25} className="group-hover/btn:translate-x-1 transition-transform duration-300"/>
+                        <div className="text-xl font-semibold text-white">Comment</div>
+                    </button> 
                 </form>
             </div>
-            <div className="flex flex-col bg-[#758b79] p-5 rounded-2xl gap-y-3">
-                {commentData.map((item: CommentContent) => (
-                    <div key={item.comment_id}>
-                        <div>{item.users?.username}</div>
-                        <div>{item.comment_content}</div>
-                    </div>
-                ))}
+            <div className="flex flex-col bg-[#e6e3e381] p-4 rounded-2xl"> 
+                <div className="flex items-center gap-x-2 mb-4">
+                    <MessageCircle className="text-green-800" size={30} />
+                    <h3 className="text-xl font-semibold text-white pb-1">ความคิดเห็น ({commentData.length})</h3>
+                </div>
+                <div className="flex flex-col rounded-2xl gap-y-3">
+                    {commentData.map((item: CommentContent) => (
+                        <div key={item.comment_id} className="bg-[#455748] p-4 rounded-2xl">
+                            <div className="flex text-md gap-x-1 mb-1 items-center">
+                                <User className="bg-[#e6e3e3cb] rounded-2xl p-1" size={30}/>
+                                {item.users?.username}
+                            </div>
+                            <div className="text-2xl">{item.comment_content}</div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     ) 

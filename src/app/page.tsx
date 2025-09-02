@@ -161,11 +161,11 @@ export default function Home() {
                 <div className="flex justify-between">
                   <div>
                     {users.username === item.users?.username ? (
-                      <div className="text-blue-500">
+                      <div className="text-blue-500 font-bold">
                         {item.users?.username || "ไม่ทราบชื่อ"}
                       </div>
                     ) : (
-                      <div>{item.users?.username}</div>
+                      <div className="font-bold text-black">{item.users?.username}</div>
                     )}
                   </div>
                   {/* ถ้า users.user_id === item.users?.user_id เป็น true ⇒ คืน <form>...</form> ⇒ เรนเดอร์ฟอร์มปุ่มลบ
